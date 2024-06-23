@@ -44,8 +44,13 @@ public class CineCRUD {
     }
 
     private void mostrarMenu() {
-        System.out.println("\n1. Crear función");
-        System.out.println("2. Ver funciones");
+        System.out.println("Cine MOCKITA");
+        System.out.println(" /\\_/\\");
+        System.out.println("( o.o )");
+        System.out.println(" > ^ <");
+        System.out.println("---MENU---");
+        System.out.println("1. Crear función");
+        System.out.println("2. Ver cartelera");
         System.out.println("3. Actualizar función");
         System.out.println("4. Eliminar función");
         System.out.println("5. Salir");
@@ -54,6 +59,8 @@ public class CineCRUD {
 
     private void crearFuncion() {
         try {
+            conn.setAutoCommit(false);
+
             mostrarPeliculasDisponibles();
             System.out.print("Ingrese el ID de la película: ");
             int movieId = scanner.nextInt();
@@ -66,6 +73,14 @@ public class CineCRUD {
             System.out.print("Fecha y hora de inicio (YYYY-MM-DD HH:MM:SS): ");
             String startTime = scanner.nextLine();
 
+            String lockSql = "SELECT * FROM horarios_de_proyeccion WHERE movie_id = ? AND room_id = ? AND start_time = ? FOR UPDATE";
+            try (PreparedStatement lockStmt = conn.prepareStatement(lockSql)) {
+                lockStmt.setInt(1, movieId);
+                lockStmt.setInt(2, roomId);
+                lockStmt.setTimestamp(3, Timestamp.valueOf(startTime));
+                ResultSet rs = lockStmt.executeQuery();
+            }
+
             String sql = "INSERT INTO horarios_de_proyeccion (movie_id, room_id, start_time) VALUES (?, ?, ?)";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, movieId);
@@ -76,10 +91,24 @@ public class CineCRUD {
                     System.out.println("Función creada exitosamente.");
                 }
             }
+
+            conn.commit(); // Confirma la transacción si todo está bien
         } catch (SQLException e) {
+            try {
+                conn.rollback(); // Revierte la transacción en caso de error
+            } catch (SQLException rollbackEx) {
+                System.out.println("Error al hacer rollback: " + rollbackEx.getMessage());
+            }
             System.out.println("Error al crear la función: " + e.getMessage());
+        } finally {
+            try {
+                conn.setAutoCommit(true); // Restaura el modo de autocommit
+            } catch (SQLException autoCommitEx) {
+                System.out.println("Error al restaurar autocommit: " + autoCommitEx.getMessage());
+            }
         }
     }
+
 
     private void mostrarPeliculasDisponibles() throws SQLException {
         String sql = "SELECT movie_id, title FROM peliculas";
@@ -144,9 +173,19 @@ public class CineCRUD {
 
     private void actualizarFuncion() {
         try {
+            conn.setAutoCommit(false); // Inicia la transacción
+
             mostrarFuncionesDisponibles();
             System.out.print("ID de la función a actualizar: ");
             int scheduleId = scanner.nextInt();
+
+            // Adquirir un bloqueo en la fila específica que se va a actualizar
+            String lockSql = "SELECT * FROM horarios_de_proyeccion WHERE schedule_id = ? FOR UPDATE";
+            try (PreparedStatement lockStmt = conn.prepareStatement(lockSql)) {
+                lockStmt.setInt(1, scheduleId);
+                ResultSet rs = lockStmt.executeQuery();
+                // No es necesario procesar el ResultSet, pero ejecutamos esta consulta para adquirir el bloqueo
+            }
 
             mostrarPeliculasDisponibles();
             System.out.print("Nuevo ID de película: ");
@@ -173,16 +212,37 @@ public class CineCRUD {
                     System.out.println("No se encontró la función especificada.");
                 }
             }
+
+            conn.commit(); // Confirma la transacción si todo está bien
         } catch (SQLException e) {
+            try {
+                conn.rollback(); // Revierte la transacción en caso de error
+            } catch (SQLException rollbackEx) {
+                System.out.println("Error al hacer rollback: " + rollbackEx.getMessage());
+            }
             System.out.println("Error al actualizar la función: " + e.getMessage());
+        } finally {
+            try {
+                conn.setAutoCommit(true); // Restaura el modo de autocommit
+            } catch (SQLException autoCommitEx) {
+                System.out.println("Error al restaurar autocommit: " + autoCommitEx.getMessage());
+            }
         }
     }
 
+
     private void eliminarFuncion() {
         try {
+            conn.setAutoCommit(false);
             mostrarFuncionesDisponibles();
             System.out.print("ID de la función a eliminar: ");
             int scheduleId = scanner.nextInt();
+
+            String lockSql = "SELECT * FROM horarios_de_proyeccion WHERE schedule_id = ? FOR UPDATE";
+            try (PreparedStatement lockStmt = conn.prepareStatement(lockSql)) {
+                lockStmt.setInt(1, scheduleId);
+                ResultSet rs = lockStmt.executeQuery();
+            }
 
             String sql = "DELETE FROM horarios_de_proyeccion WHERE schedule_id = ?";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -194,10 +254,24 @@ public class CineCRUD {
                     System.out.println("No se encontró la función especificada.");
                 }
             }
+
+            conn.commit(); // Confirma la transacción si todo está bien
         } catch (SQLException e) {
+            try {
+                conn.rollback(); // Revierte la transacción en caso de error
+            } catch (SQLException rollbackEx) {
+                System.out.println("Error al hacer rollback: " + rollbackEx.getMessage());
+            }
             System.out.println("Error al eliminar la función: " + e.getMessage());
+        } finally {
+            try {
+                conn.setAutoCommit(true); // Restaura el modo de autocommit
+            } catch (SQLException autoCommitEx) {
+                System.out.println("Error al restaurar autocommit: " + autoCommitEx.getMessage());
+            }
         }
     }
+
 
     private void cerrarConexion() {
         try {
