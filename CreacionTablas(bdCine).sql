@@ -65,3 +65,27 @@ CREATE TABLE horarios_de_proyeccion (
     room_id INTEGER REFERENCES salas_de_cine(room_id),
     start_time TIMESTAMP NOT NULL
 );
+
+
+--------- Insertar Datos ---------
+-- Insertar datos en la tabla de películas
+INSERT INTO peliculas (title, genre, duration, clasificacion) VALUES
+('Toy Story', 'Animación', 81, 'A'),
+('The Godfather', 'Crimen', 175, '17'),
+('Inception', 'Ciencia Ficción', 148, 'R'),
+('Pulp Fiction', 'Crimen', 154, '17'),
+('The Dark Knight', 'Acción', 152, 'R');
+
+-- Insertar datos en la tabla de salas de cine
+INSERT INTO salas_de_cine (capacity) VALUES
+(100),
+(150),
+(200);
+
+-- Insertar datos en la tabla de horarios de proyección
+INSERT INTO horarios_de_proyeccion (movie_id, room_id, start_time) VALUES
+(1, 1, '2024-06-22 10:00:00'),
+(2, 2, '2024-06-22 13:00:00'),
+(3, 3, '2024-06-22 16:00:00'),
+(4, 1, '2024-06-22 19:00:00'),
+(5, 2, '2024-06-22 22:00:00');
