@@ -173,18 +173,16 @@ public class CineCRUD {
 
     private void actualizarFuncion() {
         try {
-            conn.setAutoCommit(false); // Inicia la transacción
+            conn.setAutoCommit(false); 
 
             mostrarFuncionesDisponibles();
             System.out.print("ID de la función a actualizar: ");
             int scheduleId = scanner.nextInt();
 
-            // Adquirir un bloqueo en la fila específica que se va a actualizar
             String lockSql = "SELECT * FROM horarios_de_proyeccion WHERE schedule_id = ? FOR UPDATE";
             try (PreparedStatement lockStmt = conn.prepareStatement(lockSql)) {
                 lockStmt.setInt(1, scheduleId);
                 ResultSet rs = lockStmt.executeQuery();
-                // No es necesario procesar el ResultSet, pero ejecutamos esta consulta para adquirir el bloqueo
             }
 
             mostrarPeliculasDisponibles();
@@ -195,7 +193,7 @@ public class CineCRUD {
             System.out.print("Nuevo ID de sala: ");
             int newRoomId = scanner.nextInt();
 
-            scanner.nextLine(); // Consumir el salto de línea
+            scanner.nextLine(); 
             System.out.print("Nueva fecha y hora (YYYY-MM-DD HH:MM:SS): ");
             String newStartTime = scanner.nextLine();
 
@@ -213,17 +211,17 @@ public class CineCRUD {
                 }
             }
 
-            conn.commit(); // Confirma la transacción si todo está bien
+            conn.commit(); 
         } catch (SQLException e) {
             try {
-                conn.rollback(); // Revierte la transacción en caso de error
+                conn.rollback(); 
             } catch (SQLException rollbackEx) {
                 System.out.println("Error al hacer rollback: " + rollbackEx.getMessage());
             }
             System.out.println("Error al actualizar la función: " + e.getMessage());
         } finally {
             try {
-                conn.setAutoCommit(true); // Restaura el modo de autocommit
+                conn.setAutoCommit(true); 
             } catch (SQLException autoCommitEx) {
                 System.out.println("Error al restaurar autocommit: " + autoCommitEx.getMessage());
             }
@@ -255,17 +253,17 @@ public class CineCRUD {
                 }
             }
 
-            conn.commit(); // Confirma la transacción si todo está bien
+            conn.commit(); 
         } catch (SQLException e) {
             try {
-                conn.rollback(); // Revierte la transacción en caso de error
+                conn.rollback(); 
             } catch (SQLException rollbackEx) {
                 System.out.println("Error al hacer rollback: " + rollbackEx.getMessage());
             }
             System.out.println("Error al eliminar la función: " + e.getMessage());
         } finally {
             try {
-                conn.setAutoCommit(true); // Restaura el modo de autocommit
+                conn.setAutoCommit(true); 
             } catch (SQLException autoCommitEx) {
                 System.out.println("Error al restaurar autocommit: " + autoCommitEx.getMessage());
             }
