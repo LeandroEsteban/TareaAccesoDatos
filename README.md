@@ -8,3 +8,5 @@ https://github.com/LeandroEsteban/TareaAccesoDatos/tree/main/src/main/java
 
 Script SQL:
 https://github.com/LeandroEsteban/TareaAccesoDatos/blob/main/CreacionTablas(bdCine).sql
+
+Integrantes: Antonia Parades y Leandro Matamoros
